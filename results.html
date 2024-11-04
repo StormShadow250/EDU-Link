@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .teacher-card {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background-color: #2e2e2e;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+            text-align: left; 
+            justify-content: left;
+        }
+
+        .teacher-card:hover, .teacher-card:focus {
+            transform: scale(1.02);
+            background-color: #333;
+        }
+
+        .teacher-card p {
+            margin: 8px 0;
+            color: #cccccc;
+        }
+
+        .teacher-card p strong {
+            color: #4CAF50;
+        }
+
+        #results-content p {
+            color: #cccccc;
+            text-align: left; /* Keep center alignment for this specific content */
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Available Teachers</h1>
+        <div id="results-content" role="region" aria-live="polite"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let teachers;
+            try {
+                teachers = JSON.parse(localStorage.getItem('teachers')) || [];
+            } catch (error) {
+                console.error('Error parsing teacher data:', error);
+                teachers = [];
+            }
+
+            const subject = new URLSearchParams(window.location.search).get('subject');
+
+            const resultsContent = document.getElementById('results-content');
+
+            if (subject) {
+                const matchingTeachers = teachers.filter(teacher => 
+                    teacher.subject.toLowerCase() === subject.toLowerCase()
+                );
+
+                if (matchingTeachers.length > 0) {
+                    matchingTeachers.forEach(teacher => {
+                        const teacherCard = document.createElement('div');
+                        teacherCard.className = 'teacher-card';
+                        teacherCard.innerHTML = `
+                            <p><strong>Name:</strong> <span>${teacher.name}</span></p>
+                            <p><strong>Phone:</strong> <span>${teacher.phone}</span></p>
+                            <p><strong>Address:</strong> <span>${teacher.fullAddress}</span></p>
+                            <p><strong>Subject:</strong> <span>${teacher.subject}</span></p>`;
+                        resultsContent.appendChild(teacherCard);
+                    });
+                } else {
+                    resultsContent.innerHTML = '<p>No teachers available for the subject you want to learn.</p>';
+                }
+            } else {
+                resultsContent.innerHTML = '<p>Please provide a subject to search for teachers.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
