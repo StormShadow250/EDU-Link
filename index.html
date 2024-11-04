@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher and Student Form</title>
     <style>
-        body {
+        body{
             font-family: Arial, sans-serif;
-            background-color: #121212;
+            background-image: url('images/WhatsApp Image 2024-11-05 at 02.43.18.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             color: #e0e0e0;
             margin: 0;
             padding: 0;
@@ -17,6 +20,7 @@
             justify-content: center;
             height: 100vh;
         }
+
         
         .container {
             width: 100%;
@@ -76,6 +80,15 @@
         .hidden {
             display: none;
         }
+
+        .gender-options {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .gender-options label {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -93,18 +106,34 @@
         <form id="user-type-form" class="hidden">
             <h2 id="form-title"></h2>
             <div id="address-section">
-                <h3>Address Information</h3>
+                <h3>Personal Information</h3>
+
                 <label for="street">Street:</label>
-                <input type="text" id="street" required>
+                <input type="text" placeholder="Park Street" id="street" required>
                 
                 <label for="locality">Locality:</label>
-                <input type="text" id="locality" required>
+                <input type="text" placeholder="Morrioh" id="locality" required>
                 
                 <label for="city">City:</label>
-                <input type="text" id="city" required>
+                <input type="text" placeholder="Sendai" id="city" required>
                 
                 <label for="country">Country:</label>
-                <input type="text" id="country" required>
+                <input type="text" placeholder="Japan" id="country" required>
+            </div>
+
+            <div id="gender-section">
+                <h3>Gender</h3>
+                <div class="gender-options">
+                    <label>
+                        <input type="radio" name="gender" value="male" required> Male
+                    </label>
+                    <label>
+                        <input type="radio" name="gender" value="female" required> Female
+                    </label>
+                    <label>
+                        <input type="radio" name="gender" value="prefer-not-to-say" required> Prefer not to say
+                    </label>
+                </div>
             </div>
 
             <div id="teacher-specific" class="hidden">
@@ -141,6 +170,7 @@
             document.getElementById('teacher-specific').style.display = 'none';
             document.getElementById('student-specific').style.display = 'none';
             document.getElementById('address-section').style.display = 'block';
+            document.getElementById('gender-section').style.display = 'block';
             
             document.querySelectorAll('input[type="text"], select').forEach(input => {
                 input.addEventListener('input', checkAllFieldsFilled);
@@ -155,16 +185,18 @@
             const city = document.getElementById('city').value;
             const country = document.getElementById('country').value;
             const nextButton = document.getElementById('next-button');
+            const genderSelected = document.querySelector('input[name="gender"]:checked');
 
             if (nextButton.innerText === 'Submit') {
                 submitForm();
             } else {
-                if (!street || !locality || !city || !country) {
-                    alert('Please fill in all address fields.');
+                if (!street || !locality || !city || !country || !genderSelected) {
+                    alert('Please fill in all address fields and select a gender.');
                     return;
                 }
 
                 document.getElementById('address-section').style.display = 'none';
+                document.getElementById('gender-section').style.display = 'none';
 
                 if (userType === 'teacher') {
                     document.getElementById('teacher-specific').style.display = 'block';
@@ -182,6 +214,7 @@
             const city = document.getElementById('city').value;
             const country = document.getElementById('country').value;
             const fullAddress = `${street}, ${locality}, ${city}, ${country}`;
+            const gender = document.querySelector('input[name="gender"]:checked').value;
 
             const name = document.getElementById('name') ? document.getElementById('name').value : '';
             const phone = document.getElementById('phone') ? document.getElementById('phone').value : '';
@@ -199,7 +232,7 @@
             }
 
             if (userType === 'teacher') {
-                teachers.push({ fullAddress, name, phone, subject });
+                teachers.push({ fullAddress, gender, name, phone, subject });
                 localStorage.setItem('teachers', JSON.stringify(teachers));
                 alert('Teacher details submitted successfully! You can add another teacher.');
                 resetForm();
@@ -212,6 +245,7 @@
         function resetForm() {
             document.getElementById('user-type-form').reset();
             document.getElementById('address-section').style.display = 'block';
+            document.getElementById('gender-section').style.display = 'block';
             document.getElementById('teacher-specific').style.display = 'none';
             document.getElementById('student-specific').style.display = 'none';
             document.getElementById('next-button').innerText = 'Next';
@@ -222,11 +256,12 @@
             const requiredAddressInputs = Array.from(document.querySelectorAll('#address-section input[required]'));
             const requiredTeacherInputs = Array.from(document.querySelectorAll('#teacher-specific input[required]'));
             const requiredStudentInputs = Array.from(document.querySelectorAll('#student-specific input[required]'));
+            const genderSelected = document.querySelector('input[name="gender"]:checked');
             const nextButton = document.getElementById('next-button');
             let allFilled = false;
 
             if (document.getElementById('address-section').style.display === 'block') {
-                allFilled = requiredAddressInputs.every(input => input.value.trim() !== '');
+                allFilled = requiredAddressInputs.every(input => input.value.trim() !== '') && genderSelected;
             } else if (userType === 'teacher') {
                 allFilled = requiredTeacherInputs.every(input => input.value.trim() !== '');
             } else if (userType === 'student') {
